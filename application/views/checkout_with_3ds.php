@@ -44,7 +44,7 @@
 		// Sandbox URL
 		Veritrans.url = "https://api.sandbox.veritrans.co.id/v2/token";
 		// TODO: Change with your client key.
-		Veritrans.client_key = "VT-client-tsQabcFjwuwUuN7a";
+		Veritrans.client_key = "VT-client-CeQI03arbViF7xyF";
 		//Veritrans.client_key = "VT-client-h7ubdjqpcsLAQnjY";
 
 		//Veritrans.client_key = "d4b273bc-201c-42ae-8a35-c9bf48c1152b";

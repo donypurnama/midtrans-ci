@@ -119,6 +119,54 @@ class Snap extends CI_Controller {
 		echo $snapToken;
     }
 
+		public function notification()
+		{
+			echo 'test notification handler';
+			$json_result = file_get_contents('php://input');
+			$result = json_decode($json_result);
+
+			if($result){
+			$notif = $this->veritrans->status($result->order_id);
+			}
+
+			error_log(print_r($result,TRUE));
+
+			//notification handler sample
+
+			$transaction = $notif->transaction_status;
+			$type = $notif->payment_type;
+			$order_id = $notif->order_id;
+			$fraud = $notif->fraud_status;
+
+			if ($transaction == 'capture') {
+			  // For credit card transaction, we need to check whether transaction is challenge by FDS or not
+			  if ($type == 'credit_card'){
+			    if($fraud == 'challenge'){
+			      // TODO set payment status in merchant's database to 'Challenge by FDS'
+			      // TODO merchant should decide whether this transaction is authorized or not in MAP
+			      echo "Transaction order_id: " . $order_id ." is challenged by FDS";
+			      }
+			      else {
+			      // TODO set payment status in merchant's database to 'Success'
+			      echo "Transaction order_id: " . $order_id ." successfully captured using " . $type;
+			      }
+			    }
+			  }
+			else if ($transaction == 'settlement'){
+			  // TODO set payment status in merchant's database to 'Settlement'
+			  echo "Transaction order_id: " . $order_id ." successfully transfered using " . $type;
+			  }
+			  else if($transaction == 'pending'){
+			  // TODO set payment status in merchant's database to 'Pending'
+			  echo "Waiting customer to finish transaction order_id: " . $order_id . " using " . $type;
+			  }
+			  else if ($transaction == 'deny') {
+			  // TODO set payment status in merchant's database to 'Denied'
+			  echo "Payment using " . $type . " for transaction order_id: " . $order_id . " is denied.";
+			}
+
+		}
+
     public function finish()
     {
     	$result = json_decode($this->input->post('result_data'));
@@ -127,4 +175,30 @@ class Snap extends CI_Controller {
     	echo '</pre>' ;
 
     }
+
+		public function payment() {
+			$json = '{
+								  "transaction_time": "2017-08-09 16:54:22",
+								  "transaction_status": "deny",
+								  "transaction_id": "61270576-1938-4ba6-84d4-2780f20d742a",
+								  "status_message": "Veritrans payment notification",
+								  "status_code": "202",
+								  "signature_key": "b874c3906a679fd57f3acc2382078c6859cbb4619abe11e42cd4e25386553c577a06d3f163409ef3e00e04a1d9f078c2b5289c19182f37d19bd7a3498b5fcabf",
+								  "payment_type": "mandiri_clickpay",
+								  "order_id": "1033850673",
+								  "masked_card": "411111-1111",
+								  "gross_amount": "94000.00",
+								  "fraud_status": "accept",
+								  "approval_code": "1502272464843"
+								}';
+
+					var_dump(json_decode($json));
+					var_dump(json_decode($json, true));
+
+					$obj = json_decode($json);
+
+					echo $obj->{'status_code'};
+
+
+		}
 }
