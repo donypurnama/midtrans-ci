@@ -1,5 +1,12 @@
-RewriteEngine on
-RewriteCond $1 !^(index\.php|resources|robots\.txt)
+#Force use HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^.*$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+#Remove access to system folder
+RewriteCond %{REQUEST_URI} ^system.*
+RewriteRule ^(.*)$ /index.php/$1 [L]
+
+#Add ? symbol after index.php due to CI3 rewrite problem
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+RewriteRule ^(.*)$ index.php?/$1 [L]
